@@ -1,0 +1,24 @@
+
+spring:
+  application:
+    name: Notification
+  datasource:
+    url: jdbc:postgresql://localhost:5434/notification_db
+    username: admin
+    password: password
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      properties:
+        hibernate:
+          format_sql: true
+
+server:
+  port: 8060
+
+springdoc:
+  swagger-ui:
+    path: swagger-ui
+  api-docs:
+    path: /api-docs
