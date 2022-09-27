@@ -1,12 +1,14 @@
 package com.example.joydanotification.services;
 
-import com.example.joydanotification.dto.*;
+import com.example.joydanotification.dto.BasicDTO;
+import com.example.joydanotification.dto.DataDTO;
+import com.example.joydanotification.dto.LanguageDTO;
+import com.example.joydanotification.dto.NotificationItemDTO;
 import com.example.joydanotification.dto.notificationTypeDTOS.CreditRepaymentDto;
 import com.example.joydanotification.dto.notificationTypeDTOS.OrderCardDto;
 import com.example.joydanotification.dto.notificationTypeDTOS.PaymentDto;
 import com.example.joydanotification.dto.notificationTypeDTOS.RedepositDto;
 import com.example.joydanotification.entity.Notification;
-import com.example.joydanotification.enums.NotificationStatusEnum;
 import com.example.joydanotification.enums.NotificationTypeEnum;
 import com.example.joydanotification.repository.NotificationRepository;
 import com.google.gson.Gson;
@@ -18,20 +20,39 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
     private final Gson gson;
     private final NotificationRepository notificationRepository;
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAll(String language, NotificationTypeEnum type) {
 
-        List<Notification> all = notificationRepository.findAllByTypeAndStatus(
-//                .findAllByTypeAndStatus(
-//                NotificationTypeEnum.redeposit,
-//                NotificationStatusEnum.active.name()
-                );
+    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAll(String language,Integer page, Integer size) {
+        if (size==null) size = 30;
+        List<Notification> all = notificationRepository.findAll(page, size);
+        List<NotificationItemDTO> dataList = getDataList(all, language);
+        return ResponseEntity.ok(new DataDTO(dataList));
+    }
 
+    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAllByType(String language, NotificationTypeEnum type,Integer page, Integer size) {
+        if (size==null) size = 30;
+        List<Notification> all = notificationRepository.findAllByType(type,page,size);
+        List<NotificationItemDTO> dataList = getDataList(all, language);
+        return ResponseEntity.ok(new DataDTO(dataList));
+    }
+
+    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAllByUserId(String language, Long userId, Integer page, Integer size) {
+        if (size==null) size = 30;
+        List<Notification> all = notificationRepository.findAllByUserId(userId,page,size);
+        List<NotificationItemDTO> dataList = getDataList(all, language);
+        return ResponseEntity.ok(new DataDTO(dataList));
+    }
+
+    public ResponseEntity<DataDTO<List<String>>> getTypesByUserId(String language, Long userId) {
+        List<String> all = notificationRepository.findTypesByUserId(userId);
+        return ResponseEntity.ok(new DataDTO(all));
+    }
+
+    private List<NotificationItemDTO> getDataList(List<Notification> all, String language){
         List<NotificationItemDTO> list = new ArrayList<>();
 
         all.stream().forEach(notification -> {
@@ -72,15 +93,13 @@ public class NotificationService {
             }
         });
 
-        return ResponseEntity.ok(new DataDTO(list));
-
+        return list;
     }
 
     private List<BasicDTO> getDataByType(Notification notification) {
         if (notification.getData() == null||notification.getData().equals("[]")) return new ArrayList<>();
-        System.out.println(notification.getId());
 
-        if (notification.getData().contains("[") && (notification.getData().contains("]"))) {
+        if (notification.getData().startsWith("[") && (notification.getData().endsWith("]"))) {
             switch (notification.getType()) {
                 case redeposit -> {
                     return gson.fromJson(notification.getData(), new TypeToken<List<RedepositDto>>() {
