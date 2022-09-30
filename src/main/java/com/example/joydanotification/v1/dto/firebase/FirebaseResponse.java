@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.services;
+package com.example.joydanotification.v1.dto.firebase;
 
 import lombok.*;
 
@@ -9,8 +9,8 @@ import lombok.*;
 @Builder
 public class FirebaseResponse {
    private Number multicast_id;
-   private Number success;
-   private Number failure;
+   private Integer success;
+   private Integer failure;
    private FirebaseResponseResult result;
 
 }

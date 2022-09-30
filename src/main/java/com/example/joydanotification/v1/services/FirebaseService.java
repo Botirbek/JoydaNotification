@@ -1,6 +1,10 @@
 package com.example.joydanotification.v1.services;
 
 import com.example.joydanotification.v1.dto.DataDTO;
+import com.example.joydanotification.v1.dto.firebase.DataF;
+import com.example.joydanotification.v1.dto.firebase.FirebaseResponse;
+import com.example.joydanotification.v1.dto.firebase.NotificationF;
+import com.example.joydanotification.v1.dto.firebase.RequestDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -51,8 +55,6 @@ public class FirebaseService {
         );
 
         FirebaseResponse responseDto = restTemplate.postForObject(BASE_URL, request, FirebaseResponse.class);
-
-        System.out.println(responseDto.toString());
 
         return ResponseEntity.ok(new DataDTO<>(responseDto.toString()));
     }

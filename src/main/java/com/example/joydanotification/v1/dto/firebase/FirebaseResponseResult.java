@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.services;
+package com.example.joydanotification.v1.dto.firebase;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;

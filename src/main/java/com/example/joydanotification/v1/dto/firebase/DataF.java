@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.services;
+package com.example.joydanotification.v1.dto.firebase;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

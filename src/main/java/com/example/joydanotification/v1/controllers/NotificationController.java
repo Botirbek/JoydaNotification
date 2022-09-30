@@ -1,6 +1,7 @@
 package com.example.joydanotification.v1.controllers;
 
 import com.example.joydanotification.v1.dto.DataDTO;
+import com.example.joydanotification.v1.dto.NotificationCreateDTO;
 import com.example.joydanotification.v1.dto.NotificationItemDTO;
 import com.example.joydanotification.v1.enums.NotificationTypeEnum;
 import com.example.joydanotification.v1.services.FirebaseService;
@@ -19,6 +20,17 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final FirebaseService firebaseService;
+
+
+    @PostMapping("/create")
+    public ResponseEntity<DataDTO<Long>> create (@RequestBody NotificationCreateDTO notificationCreateDTO){
+         return notificationService.save(notificationCreateDTO);
+    }
+
+    @PostMapping("/changeReadStatus")
+    public ResponseEntity<DataDTO<Boolean>> changeReadStatus(Long id, Boolean status){
+        return notificationService.changeReadStatus(id,status);
+    }
 
     @GetMapping("/getAll")
     public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAll(
@@ -65,7 +77,7 @@ public class NotificationController {
     }
 
     @GetMapping("/getById")
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>>  getById(
+    public ResponseEntity<DataDTO<NotificationItemDTO>>  getById(
             @RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String lan,
             @RequestParam Long id)
     {

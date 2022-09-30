@@ -1,20 +1,18 @@
 package com.example.joydanotification.v1.services;
 
-import com.example.joydanotification.v1.dto.BasicDTO;
-import com.example.joydanotification.v1.dto.DataDTO;
-import com.example.joydanotification.v1.dto.LanguageDTO;
-import com.example.joydanotification.v1.dto.NotificationItemDTO;
+import com.example.joydanotification.v1.dto.*;
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.CreditRepaymentDto;
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.OrderCardDto;
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.PaymentDto;
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.RedepositDto;
 import com.example.joydanotification.v1.entity.Notification;
+import com.example.joydanotification.v1.enums.NotificationStatusEnum;
 import com.example.joydanotification.v1.enums.NotificationTypeEnum;
 import com.example.joydanotification.v1.exceptions.CustomException;
-import com.example.joydanotification.v1.exceptions.SqlException;
 import com.example.joydanotification.v1.repository.NotificationRepository;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,7 +36,7 @@ public class NotificationService {
 
     public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAllByType(String language, NotificationTypeEnum type,Integer page, Integer size) {
         if (size==null) size = 30;
-        List<Notification> all = notificationRepository.findAllByType(type,page,size);
+        List<Notification> all = notificationRepository.findAllByType(type.name(),page,size);
         List<NotificationItemDTO> dataList = getDataList(all, language);
         return ResponseEntity.ok(new DataDTO(dataList));
     }
@@ -51,7 +49,7 @@ public class NotificationService {
     }
 
     public ResponseEntity<DataDTO<List<Integer>>> getCountNewNotification(Long userId) {
-        int count = notificationRepository.findAllByUserIdAndReadStatus(userId);
+        int count = notificationRepository.findAllNewsByUserId(userId);
         return ResponseEntity.ok(new DataDTO(count));
     }
 
@@ -60,53 +58,86 @@ public class NotificationService {
         return ResponseEntity.ok(new DataDTO(all));
     }
 
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getById(String language, Long id) {
+    public ResponseEntity<DataDTO<NotificationItemDTO>> getById(String language, Long id) {
         Optional<Notification> byId = notificationRepository.findById(id);
         if (byId.isEmpty()){
             throw new CustomException("Couldn't found notification by id = "+id);
         }
-        return ResponseEntity.ok(new DataDTO(byId.get()));
+        return ResponseEntity.ok(new DataDTO(parseData(byId.get(),language)));
+    }
+
+    public ResponseEntity<DataDTO<Boolean>> changeReadStatus(Long id, Boolean readStatus){
+        Optional<Notification> byId = notificationRepository.findById(id);
+        if (byId.isEmpty()){
+            throw new CustomException("Couldn't found notification by id = "+id);
+        }
+
+        Notification notification = byId.get();
+        notification.setRead_status(readStatus);
+        notificationRepository.save(notification);
+        return ResponseEntity.ok(new DataDTO<>(true));
+    }
+
+    public ResponseEntity<DataDTO<Long>> save( NotificationCreateDTO notificationCreateDTO) {
+        //TODO userId will found by jwt token
+        Long userId = 199368L;
+
+        Notification build = Notification.builder()
+                .data(gson.toJson(null))
+                .status(NotificationStatusEnum.active)
+                .image(notificationCreateDTO.getImage())
+                .text(gson.toJson(notificationCreateDTO.getText()))
+                .title(gson.toJson(notificationCreateDTO.getTitle()))
+                .type(notificationCreateDTO.getType())
+                .user_id(userId)
+                .build();
+
+        Notification save = notificationRepository.save(build);
+
+        return ResponseEntity.ok(new DataDTO<>(save.getId()));
+    }
+
+    private NotificationItemDTO parseData(Notification notification, String language){
+        switch (language) {
+            case "en":
+                return NotificationItemDTO.builder()
+                        .id(notification.getId().toString())
+                        .title(gson.fromJson(notification.getTitle(), LanguageDTO.class).getEn())
+                        .date(notification.getDate().toString())
+                        .image(notification.getImage())
+                        .text(gson.fromJson(notification.getText(), LanguageDTO.class).getEn())
+                        .type(notification.getType().name())
+                        .data(getDataByType(notification))
+                        .build();
+            case "ru":
+                return NotificationItemDTO.builder()
+                        .id(notification.getId().toString())
+                        .title(gson.fromJson(notification.getTitle(), LanguageDTO.class).getRu())
+                        .date(notification.getDate().toString())
+                        .image(notification.getImage())
+                        .text(gson.fromJson(notification.getText(), LanguageDTO.class).getRu())
+                        .type(notification.getType().name())
+                        .data(getDataByType(notification))
+                        .build();
+            case "uz":
+                return NotificationItemDTO.builder()
+                        .id(notification.getId().toString())
+                        .title(gson.fromJson(notification.getTitle(), LanguageDTO.class).getUz())
+                        .date(notification.getDate().toString())
+                        .image(notification.getImage())
+                        .text(gson.fromJson(notification.getText(), LanguageDTO.class).getUz())
+                        .type(notification.getType().name())
+                        .data(getDataByType(notification))
+                        .build();
+        }
+        return null;
     }
 
     private List<NotificationItemDTO> getDataList(List<Notification> all, String language){
         List<NotificationItemDTO> list = new ArrayList<>();
 
         all.stream().forEach(notification -> {
-            switch (language) {
-                case "en":
-                    list.add(NotificationItemDTO.builder()
-                            .id(notification.getId().toString())
-                            .title(gson.fromJson(notification.getTitle(), LanguageDTO.class).getEn())
-                            .date(notification.getDate().toString())
-                            .image(notification.getImage())
-                            .text(gson.fromJson(notification.getText(), LanguageDTO.class).getEn())
-                            .type(notification.getType().name())
-                            .data(getDataByType(notification))
-                            .build());
-                    break;
-                case "ru":
-                    list.add(NotificationItemDTO.builder()
-                            .id(notification.getId().toString())
-                            .title(gson.fromJson(notification.getTitle(), LanguageDTO.class).getRu())
-                            .date(notification.getDate().toString())
-                            .image(notification.getImage())
-                            .text(gson.fromJson(notification.getText(), LanguageDTO.class).getRu())
-                            .type(notification.getType().name())
-                            .data(getDataByType(notification))
-                            .build());
-                    break;
-                case "uz":
-                    list.add(NotificationItemDTO.builder()
-                            .id(notification.getId().toString())
-                            .title(gson.fromJson(notification.getTitle(), LanguageDTO.class).getUz())
-                            .date(notification.getDate().toString())
-                            .image(notification.getImage())
-                            .text(gson.fromJson(notification.getText(), LanguageDTO.class).getUz())
-                            .type(notification.getType().name())
-                            .data(getDataByType(notification))
-                            .build());
-                    break;
-            }
+            list.add(parseData(notification, language));
         });
 
         return list;
@@ -158,5 +189,6 @@ public class NotificationService {
         }
         return null;
     }
+
 
 }

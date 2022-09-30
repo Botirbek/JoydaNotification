@@ -3,6 +3,7 @@ package com.example.joydanotification.v1.entity;
 import com.example.joydanotification.config.PostgreSQLEnumType;
 import com.example.joydanotification.v1.enums.NotificationStatusEnum;
 import com.example.joydanotification.v1.enums.NotificationTypeEnum;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,10 @@ import java.time.LocalDateTime;
         name = "pgsql_enum",
         typeClass = PostgreSQLEnumType.class
 )
+@TypeDef(
+        name = "jsonb",
+        typeClass = JsonBinaryType.class
+)
 @Table(name = "notification")
 public class Notification {
 
@@ -34,10 +39,12 @@ public class Notification {
     @Column(nullable = false, updatable = false)
     private Long id;
 
+    @Type(type = "jsonb")
     private String title;
 
     private String image;
 
+    @Type(type = "jsonb")
     private String text;
 
     @Enumerated(value = EnumType.STRING)
@@ -63,6 +70,7 @@ public class Notification {
 
     private Long user_id;
 
+    @Type(type = "jsonb")
     private String data;
 
     private boolean read_status;

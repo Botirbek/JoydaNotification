@@ -36,9 +36,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query(nativeQuery = true ,value ="select distinct n.type from Notification n where n.user_id = ?1 and n.status = 'active'")
     List<String> findTypesByUserId(Long userId);
 
-    @Query(nativeQuery = true , value ="select n.* from Notification n where n.type = ?1 and n.status = 'active'  order by id offset ?3*(?2-1) limit ?3")
-    List<Notification> findAllByType(NotificationTypeEnum type, Integer page, Integer size);
+    @Query(nativeQuery = true , value ="select n.* from Notification n where  CAST (n.type AS varchar) = ?1 and n.status = 'active'  order by id offset ?3*(?2-1) limit ?3")
+    List<Notification> findAllByType(String type, Integer page, Integer size);
 
-    @Query("select count(n) from Notification n where n.user_id = ?1 and n.read_status = true")
-    int findAllByUserIdAndReadStatus(Long userId);
+    @Query("select count(n) from Notification n where n.user_id = ?1 and n.read_status = false")
+    int findAllNewsByUserId(Long userId);
+
+
 }
