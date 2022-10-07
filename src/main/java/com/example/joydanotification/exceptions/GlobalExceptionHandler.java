@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.exceptions;
+package com.example.joydanotification.exceptions;
 
 import com.example.joydanotification.v1.dto.AppErrorDTO;
 import com.example.joydanotification.v1.dto.DataDTO;

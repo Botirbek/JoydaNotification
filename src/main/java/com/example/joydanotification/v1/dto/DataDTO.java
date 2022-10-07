@@ -12,7 +12,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataDTO<T> implements Serializable {
     protected T data;
 
@@ -20,21 +20,23 @@ public class DataDTO<T> implements Serializable {
 
     protected boolean success;
 
-    private Long totalCount;
+//    private Long totalCount;
 
     public DataDTO(T data) {
         this.data = data;
         this.success = true;
+        this.error = new AppErrorDTO();
     }
 
     public DataDTO(AppErrorDTO error) {
         this.error = error;
         this.success = false;
+        this.data = (T) new Object();
     }
 
     public DataDTO(T data, Long totalCount) {
         this.data = data;
         this.success = true;
-        this.totalCount = totalCount;
+//        this.totalCount = totalCount;
     }
 }

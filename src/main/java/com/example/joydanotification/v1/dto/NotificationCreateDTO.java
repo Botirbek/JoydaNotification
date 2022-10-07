@@ -1,6 +1,6 @@
 package com.example.joydanotification.v1.dto;
 
-import com.example.joydanotification.v1.enums.NotificationTypeEnum;
+import com.example.joydanotification.enums.NotificationTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

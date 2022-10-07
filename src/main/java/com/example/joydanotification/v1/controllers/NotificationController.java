@@ -1,23 +1,26 @@
 package com.example.joydanotification.v1.controllers;
 
+import com.example.joydanotification.entity.Notification;
+import com.example.joydanotification.enums.NotificationTypeEnum;
 import com.example.joydanotification.v1.dto.DataDTO;
 import com.example.joydanotification.v1.dto.NotificationCreateDTO;
 import com.example.joydanotification.v1.dto.NotificationItemDTO;
-import com.example.joydanotification.v1.enums.NotificationTypeEnum;
+import com.example.joydanotification.v1.dto.NotificationResponseDTO;
 import com.example.joydanotification.v1.services.FirebaseService;
 import com.example.joydanotification.v1.services.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/data")
 public class NotificationController {
-
     private final NotificationService notificationService;
     private final FirebaseService firebaseService;
 
@@ -27,13 +30,8 @@ public class NotificationController {
          return notificationService.save(notificationCreateDTO);
     }
 
-    @PostMapping("/changeReadStatus")
-    public ResponseEntity<DataDTO<Boolean>> changeReadStatus(Long id, Boolean status){
-        return notificationService.changeReadStatus(id,status);
-    }
-
     @GetMapping("/getAll")
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAll(
+    public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAll(
             @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String lan,
             @RequestParam  Integer page,
             @RequestParam(required = false) Integer size)
@@ -42,7 +40,7 @@ public class NotificationController {
     }
 
     @GetMapping("/getByType")
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>>  getAllByType(
+    public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAllByType(
             @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String lan,
             @RequestParam NotificationTypeEnum type,
             @RequestParam Integer page,
@@ -52,8 +50,8 @@ public class NotificationController {
     }
 
     @GetMapping("/getAllByUserId")
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>>  getAllByUserId(
-            @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String lan,
+    public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAllByUserId(
+            @RequestHeader("X-Mobile-Lang") String lan,
             @RequestParam Long userId,
             @RequestParam Integer page,
             @RequestParam(required = false) Integer size)
@@ -66,14 +64,8 @@ public class NotificationController {
             @RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String lan,
             @RequestParam Long userId)
     {
+        log.info(new DataDTO<>("getAllByUserId"));
         return   notificationService.getTypesByUserId(lan, userId);
-    }
-    
-    @GetMapping("/getNewNotificationCount")
-    public ResponseEntity<DataDTO<List<Integer>>> getCountNewNotification(){
-        Long userId = 199368L;
-        //TODO userId will found by jwt token
-        return notificationService.getCountNewNotification(userId);
     }
 
     @GetMapping("/getById")
@@ -81,6 +73,7 @@ public class NotificationController {
             @RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String lan,
             @RequestParam Long id)
     {
+        log.error(new DataDTO<>("getById"));
         return   notificationService.getById(lan, id);
     }
 
@@ -88,6 +81,29 @@ public class NotificationController {
     public ResponseEntity<DataDTO<String>>  getAllByUserId(){
         return  firebaseService.pushNotification();
     }
-    
-    
+
+    @GetMapping("/notifications-new")
+    public ResponseEntity<DataDTO<Integer>> getCountNewNotification(){
+        Long userId = 199368L;
+        log.warn(new DataDTO<>("getCountNewNotification"));
+        //TODO userId will found by jwt token
+        return notificationService.getCountNewNotification(userId);
+    }
+
+    @GetMapping("/read")
+    public ResponseEntity<DataDTO<Boolean>> markAsReadById(Long id){
+        Long userId = 199368L;
+        //TODO userId will found by jwt token
+
+        return notificationService.read(id,userId);
+    }
+
+    @GetMapping("/read-all")
+    public ResponseEntity<DataDTO<Boolean>> readAll(){
+        Long userId = 199368L;
+        //TODO userId will found by jwt token
+
+        return notificationService.readAllByUserId(userId);
+    }
+
 }

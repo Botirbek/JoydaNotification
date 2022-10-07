@@ -5,15 +5,16 @@ import com.example.joydanotification.v1.dto.notificationTypeDTOS.CreditRepayment
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.OrderCardDto;
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.PaymentDto;
 import com.example.joydanotification.v1.dto.notificationTypeDTOS.RedepositDto;
-import com.example.joydanotification.v1.entity.Notification;
-import com.example.joydanotification.v1.enums.NotificationStatusEnum;
-import com.example.joydanotification.v1.enums.NotificationTypeEnum;
-import com.example.joydanotification.v1.exceptions.CustomException;
+import com.example.joydanotification.entity.Notification;
+import com.example.joydanotification.enums.NotificationStatusEnum;
+import com.example.joydanotification.enums.NotificationTypeEnum;
+import com.example.joydanotification.exceptions.CustomException;
 import com.example.joydanotification.v1.repository.NotificationRepository;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,35 +23,34 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class NotificationService {
     private final Gson gson;
     private final NotificationRepository notificationRepository;
 
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAll(String language, Integer page, Integer size) {
+    public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAll(String language, Integer page, Integer size) {
         if (size==null) size = 30;
         List<Notification> all = notificationRepository.findAll(page, size);
         List<NotificationItemDTO> dataList = getDataList(all, language);
-        return ResponseEntity.ok(new DataDTO(dataList));
+        int pageCount =(int) Math.ceil((double) dataList.size()/size);
+        return ResponseEntity.ok(new DataDTO(new NotificationResponseDTO(dataList,pageCount)));
     }
 
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAllByType(String language, NotificationTypeEnum type,Integer page, Integer size) {
+    public ResponseEntity<DataDTO<NotificationResponseDTO>> getAllByType(String language, NotificationTypeEnum type,Integer page, Integer size) {
         if (size==null) size = 30;
         List<Notification> all = notificationRepository.findAllByType(type.name(),page,size);
         List<NotificationItemDTO> dataList = getDataList(all, language);
-        return ResponseEntity.ok(new DataDTO(dataList));
+        int pageCount =(int) Math.ceil((double) dataList.size()/size);
+        return ResponseEntity.ok(new DataDTO(new NotificationResponseDTO(dataList,pageCount)));
     }
 
-    public ResponseEntity<DataDTO<List<NotificationItemDTO>>> getAllByUserId(String language, Long userId, Integer page, Integer size) {
+    public ResponseEntity<DataDTO<NotificationResponseDTO>> getAllByUserId(String language, Long userId, Integer page, Integer size) {
         if (size==null) size = 30;
         List<Notification> all = notificationRepository.findAllByUserId(userId,page,size);
         List<NotificationItemDTO> dataList = getDataList(all, language);
-        return ResponseEntity.ok(new DataDTO(dataList));
-    }
-
-    public ResponseEntity<DataDTO<List<Integer>>> getCountNewNotification(Long userId) {
-        int count = notificationRepository.findAllNewsByUserId(userId);
-        return ResponseEntity.ok(new DataDTO(count));
+        int pageCount =(int) Math.ceil((double) dataList.size()/size);
+        return ResponseEntity.ok(new DataDTO(new NotificationResponseDTO(dataList,pageCount)));
     }
 
     public ResponseEntity<DataDTO<List<String>>> getTypesByUserId(String language, Long userId) {
@@ -59,23 +59,12 @@ public class NotificationService {
     }
 
     public ResponseEntity<DataDTO<NotificationItemDTO>> getById(String language, Long id) {
+        log.warn("awdaw");
         Optional<Notification> byId = notificationRepository.findById(id);
         if (byId.isEmpty()){
             throw new CustomException("Couldn't found notification by id = "+id);
         }
         return ResponseEntity.ok(new DataDTO(parseData(byId.get(),language)));
-    }
-
-    public ResponseEntity<DataDTO<Boolean>> changeReadStatus(Long id, Boolean readStatus){
-        Optional<Notification> byId = notificationRepository.findById(id);
-        if (byId.isEmpty()){
-            throw new CustomException("Couldn't found notification by id = "+id);
-        }
-
-        Notification notification = byId.get();
-        notification.setRead_status(readStatus);
-        notificationRepository.save(notification);
-        return ResponseEntity.ok(new DataDTO<>(true));
     }
 
     public ResponseEntity<DataDTO<Long>> save( NotificationCreateDTO notificationCreateDTO) {
@@ -95,6 +84,26 @@ public class NotificationService {
         Notification save = notificationRepository.save(build);
 
         return ResponseEntity.ok(new DataDTO<>(save.getId()));
+    }
+
+    public ResponseEntity<DataDTO<Integer>> getCountNewNotification(Long userId) {
+        int count = notificationRepository.countAllByReadStatusAndUserId(userId);
+        return ResponseEntity.ok(new DataDTO(count));
+    }
+
+    public ResponseEntity<DataDTO<Boolean>> read(Long id, Long userId){
+        notificationRepository.markAsRead(userId, id);
+
+        return ResponseEntity.ok(new DataDTO<>(true));
+    }
+
+    public ResponseEntity<DataDTO<Boolean>> readAllByUserId(Long userId) {
+        try {
+            notificationRepository.markAsReadAll(userId);
+        }catch (Exception e){
+            throw new CustomException(e.getMessage());
+        }
+        return ResponseEntity.ok(new DataDTO<>(true));
     }
 
     private NotificationItemDTO parseData(Notification notification, String language){
@@ -189,6 +198,5 @@ public class NotificationService {
         }
         return null;
     }
-
 
 }

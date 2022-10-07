@@ -1,8 +1,8 @@
-package com.example.joydanotification.v1.entity;
+package com.example.joydanotification.entity;
 
-import com.example.joydanotification.config.PostgreSQLEnumType;
-import com.example.joydanotification.v1.enums.NotificationStatusEnum;
-import com.example.joydanotification.v1.enums.NotificationTypeEnum;
+import com.example.joydanotification.enums.NotificationStatusEnum;
+import com.example.joydanotification.enums.NotificationTypeEnum;
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

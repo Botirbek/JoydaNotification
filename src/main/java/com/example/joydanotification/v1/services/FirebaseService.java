@@ -5,6 +5,7 @@ import com.example.joydanotification.v1.dto.firebase.DataF;
 import com.example.joydanotification.v1.dto.firebase.FirebaseResponse;
 import com.example.joydanotification.v1.dto.firebase.NotificationF;
 import com.example.joydanotification.v1.dto.firebase.RequestDto;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 @Service
+@Log4j2
 public class FirebaseService {
     private static final String TOKEN = "eEil5QobRkmzr9A9AemZnA:APA91bHRs_3LyYEFijVZHR68TBSxU2YmheE7yOpFsQoWmF1oSsd2jxIjgFypY0u8oSwD10OxvUAUqQoPaNRSv586I1DuGgaTAHlB1IKFAk4FwQvUQGnxi_yjO5ppMneL564ixqInmiF0";
     private static final String KEY = "AAAAMrs8Or4:APA91bF_sFBviC9WfxrgP1x3qk0rjHLwfY1DqGKxd9yen-1jy8Oiwy29HPYt1vxiouhAqpVBPBaQrP1YY5NtfhIX7ffrdXSudfIj4KiY8YoGcbI6bGtEWqqWa0jZUA0nmtNbSTYDFO8_";

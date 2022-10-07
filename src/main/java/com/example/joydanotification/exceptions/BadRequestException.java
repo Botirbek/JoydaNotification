@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.exceptions;
+package com.example.joydanotification.exceptions;
 
 public class BadRequestException extends RuntimeException{
 

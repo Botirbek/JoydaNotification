@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.entity;
+package com.example.joydanotification.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
