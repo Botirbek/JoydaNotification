@@ -1,5 +1,6 @@
 package com.example.joydanotification.v1.controllers;
 
+import com.example.joydanotification.config.JwtTokenFilter;
 import com.example.joydanotification.entity.Notification;
 import com.example.joydanotification.enums.NotificationTypeEnum;
 import com.example.joydanotification.v1.dto.DataDTO;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/v1/data")
 public class NotificationController {
     private final NotificationService notificationService;
+    private final JwtTokenFilter jwtTokenFilter;
     private final FirebaseService firebaseService;
 
 
@@ -49,16 +51,6 @@ public class NotificationController {
         return   notificationService.getAllByType(lan, type,page,size);
     }
 
-    @GetMapping("/getAllByUserId")
-    public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAllByUserId(
-            @RequestHeader("X-Mobile-Lang") String lan,
-            @RequestParam Long userId,
-            @RequestParam Integer page,
-            @RequestParam(required = false) Integer size)
-    {
-        return   notificationService.getAllByUserId(lan, userId,page,size);
-    }
-
     @GetMapping("/getTypesByUserId")
     public ResponseEntity<DataDTO<List<String>>>  getAllByUserId(
             @RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String lan,
@@ -80,6 +72,20 @@ public class NotificationController {
     @GetMapping("/push")
     public ResponseEntity<DataDTO<String>>  getAllByUserId(){
         return  firebaseService.pushNotification();
+    }
+
+    @GetMapping("/notifications")
+    public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAllByUserId(
+            @RequestHeader("X-Mobile-Lang") String lan,
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer page,
+            @RequestParam(required = false) Integer size)
+    {
+        Long userId = 199368L;
+        log.warn(new DataDTO<>("getCountNewNotification"));
+        //TODO userId will found by jwt token
+        jwtTokenFilter.parseAToken(token);
+        return   notificationService.getAllByUserId(lan, userId,page,size);
     }
 
     @GetMapping("/notifications-new")
