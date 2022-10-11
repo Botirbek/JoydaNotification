@@ -1,0 +1,41 @@
+package com.example.joydanotification.v2.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+//@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DataDTO<T> implements Serializable {
+    protected T data;
+
+    protected AppErrorDTO error;
+
+    protected boolean success;
+
+//    private Long totalCount;
+
+    public DataDTO(T data) {
+        this.data = data;
+        this.success = true;
+        this.error = new AppErrorDTO();
+    }
+
+    public DataDTO(AppErrorDTO error) {
+        this.error = error;
+        this.success = false;
+        this.data = (T) new Object();
+    }
+
+    public DataDTO(T data, Long totalCount) {
+        this.data = data;
+        this.success = true;
+//        this.totalCount = totalCount;
+    }
+}

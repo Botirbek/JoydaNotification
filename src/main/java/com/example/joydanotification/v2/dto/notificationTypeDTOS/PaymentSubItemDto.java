@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.dto.notificationTypeDTOS;
+package com.example.joydanotification.v2.dto.notificationTypeDTOS;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

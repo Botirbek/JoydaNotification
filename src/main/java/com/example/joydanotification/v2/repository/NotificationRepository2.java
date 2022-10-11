@@ -1,4 +1,4 @@
-package com.example.joydanotification.v1.repository;
+package com.example.joydanotification.v2.repository;
 
 import com.example.joydanotification.entity.Notification;
 import com.example.joydanotification.enums.NotificationTypeEnum;
@@ -11,7 +11,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository2 extends JpaRepository<Notification, Long> {
     /*
     For version 2 pagination by id
     @Query(nativeQuery = true, value = "select n.* from Notification n where n.status = 'active' and n.id >?1 limit ?2")

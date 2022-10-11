@@ -1,10 +1,10 @@
-package com.example.joydanotification.v1.services;
+package com.example.joydanotification.v2.services;
 
-import com.example.joydanotification.v1.dto.DataDTO;
-import com.example.joydanotification.v1.dto.firebase.DataF;
-import com.example.joydanotification.v1.dto.firebase.FirebaseResponse;
-import com.example.joydanotification.v1.dto.firebase.NotificationF;
-import com.example.joydanotification.v1.dto.firebase.RequestDto;
+import com.example.joydanotification.v2.dto.DataDTO;
+import com.example.joydanotification.v2.dto.firebase.DataF;
+import com.example.joydanotification.v2.dto.firebase.FirebaseResponse;
+import com.example.joydanotification.v2.dto.firebase.NotificationF;
+import com.example.joydanotification.v2.dto.firebase.RequestDto;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +19,7 @@ import java.net.Proxy;
 
 @Service
 @Log4j2
-public class FirebaseService {
+public class FirebaseService2 {
     private static final String TOKEN = "eEil5QobRkmzr9A9AemZnA:APA91bHRs_3LyYEFijVZHR68TBSxU2YmheE7yOpFsQoWmF1oSsd2jxIjgFypY0u8oSwD10OxvUAUqQoPaNRSv586I1DuGgaTAHlB1IKFAk4FwQvUQGnxi_yjO5ppMneL564ixqInmiF0";
     private static final String KEY = "AAAAMrs8Or4:APA91bF_sFBviC9WfxrgP1x3qk0rjHLwfY1DqGKxd9yen-1jy8Oiwy29HPYt1vxiouhAqpVBPBaQrP1YY5NtfhIX7ffrdXSudfIj4KiY8YoGcbI6bGtEWqqWa0jZUA0nmtNbSTYDFO8_";
     private String PROXY_SERVER_HOST = "172.25.42.77";
@@ -29,7 +29,7 @@ public class FirebaseService {
     private String BASE_URL = "https://fcm.googleapis.com/fcm/send";
 
     public ResponseEntity<DataDTO<String>> pushNotification() {
-        Proxy proxy = new Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(PROXY_SERVER_HOST, PROXY_SERVER_PORT));
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_SERVER_HOST, PROXY_SERVER_PORT));
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setProxy(proxy);
 

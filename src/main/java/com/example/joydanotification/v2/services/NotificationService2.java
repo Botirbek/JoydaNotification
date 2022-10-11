@@ -1,34 +1,34 @@
-package com.example.joydanotification.v1.services;
+package com.example.joydanotification.v2.services;
 
-import com.example.joydanotification.v1.dto.*;
-import com.example.joydanotification.v1.dto.notificationTypeDTOS.CreditRepaymentDto;
-import com.example.joydanotification.v1.dto.notificationTypeDTOS.OrderCardDto;
-import com.example.joydanotification.v1.dto.notificationTypeDTOS.PaymentDto;
-import com.example.joydanotification.v1.dto.notificationTypeDTOS.RedepositDto;
 import com.example.joydanotification.entity.Notification;
 import com.example.joydanotification.enums.NotificationStatusEnum;
 import com.example.joydanotification.enums.NotificationTypeEnum;
+import com.example.joydanotification.exceptions.BadRequestException;
 import com.example.joydanotification.exceptions.CustomException;
-import com.example.joydanotification.v1.repository.NotificationRepository;
+import com.example.joydanotification.exceptions.NotFoundException;
+import com.example.joydanotification.v2.repository.NotificationRepository2;
+import com.example.joydanotification.v2.dto.*;
+import com.example.joydanotification.v2.dto.notificationTypeDTOS.CreditRepaymentDto;
+import com.example.joydanotification.v2.dto.notificationTypeDTOS.OrderCardDto;
+import com.example.joydanotification.v2.dto.notificationTypeDTOS.PaymentDto;
+import com.example.joydanotification.v2.dto.notificationTypeDTOS.RedepositDto;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class NotificationService {
+public class NotificationService2 {
     private final Gson gson;
-    private final NotificationRepository notificationRepository;
+    private final NotificationRepository2 notificationRepository;
 
     public ResponseEntity<DataDTO<NotificationResponseDTO>>  getAll(String language, Integer page, Integer size) {
         if (size==null) size = 30;
@@ -60,10 +60,9 @@ public class NotificationService {
     }
 
     public ResponseEntity<DataDTO<NotificationItemDTO>> getById(String language, Long id) {
-        log.warn("awdaw");
         Optional<Notification> byId = notificationRepository.findById(id);
         if (byId.isEmpty()){
-            throw new CustomException("Couldn't found notification by id = "+id);
+            throw new NotFoundException("Couldn't found notification by id = "+id);
         }
         return ResponseEntity.ok(new DataDTO(parseData(byId.get(),language)));
     }
@@ -86,6 +85,7 @@ public class NotificationService {
 
         return ResponseEntity.ok(new DataDTO<>(save.getId()));
     }
+
 
     public ResponseEntity<DataDTO<Integer>> getCountNewNotification(Long userId) {
         int count = notificationRepository.countAllByReadStatusAndUserId(userId);
